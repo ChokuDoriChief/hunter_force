@@ -2,6 +2,7 @@ package player
 
 import (
 	"fmt"
+	"github.com/ChokuDoriChief/hunter_force/core"
 	"hunter_force/game"
 	"hunter_force/items"
 )
@@ -32,6 +33,33 @@ type Shelter struct {
 type Campfire struct {
 	IsLit bool
 	Fuel  int
+}
+
+func (p *Player) PerformAction(action core.Action) bool {
+	if action.EnergyCost() > 0 {
+		if p.Energy < action.EnergyCost() {
+			fmt.Println("Недостаточно энергии!")
+			return false
+		}
+
+		p.Energy -= action.EnergyCost()
+	}
+
+	result, err := action.Execute(p)
+	if err != nil {
+		fmt.Printf("Ошибка: %v\n", err)
+		return false
+	}
+
+	if action.EnergyCost() < 0 {
+		energyGain := -action.EnergyCost()
+		oldEnergy := p.Energy
+		p.Energy = Clamp(p.Energy+energyGain, 0, 100)
+		fmt.Printf("Восстановлено энергии: %d -> %d\n", oldEnergy, p.Energy)
+	}
+
+	fmt.Println(result)
+	return true
 }
 
 func (p *Player) UpdateByTime(timeOfDay game.TimeOfDay) {

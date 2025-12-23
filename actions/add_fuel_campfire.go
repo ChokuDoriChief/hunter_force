@@ -2,7 +2,7 @@ package actions
 
 import (
 	"fmt"
-	"hunter_force/player"
+	"github.com/ChokuDoriChief/hunter_force/player"
 )
 
 type AddFuelCampfireAction struct{}
