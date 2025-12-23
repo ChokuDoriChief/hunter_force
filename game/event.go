@@ -1,15 +1,14 @@
-package events
+package game
 
 import (
 	"fmt"
-	"hunter_force/game"
-	"hunter_force/player"
+	"github.com/ChokuDoriChief/hunter_force/player"
 	"math/rand"
 )
 
-func (g *game.Game) TriggerRandomEvent() {
-	events := []func(*game.Game){
-		func(g *game.Game) {
+func (g *Game) TriggerRandomEvent() {
+	events := []func(*Game){
+		func(g *Game) {
 			g.AddEvent("Вы нашли заброшенную хижину с припасами!")
 			g.Player.AddItem("аптечка", 1)
 			g.Player.AddItem("вода", 2)
@@ -38,7 +37,7 @@ func (g *game.Game) TriggerRandomEvent() {
 	event(g)
 }
 
-func (g *game.Game) AddEvent(event string) {
+func (g *Game) AddEvent(event string) {
 	g.EventLog = append(g.EventLog, event)
 
 	if len(g.EventLog) > 10 {
@@ -46,7 +45,7 @@ func (g *game.Game) AddEvent(event string) {
 	}
 }
 
-func (g *game.Game) GetRecentEvents() string {
+func (g *Game) GetRecentEvents() string {
 	if len(g.EventLog) == 0 {
 		return "Событий пока нет"
 	}
