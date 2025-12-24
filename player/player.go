@@ -2,8 +2,8 @@ package player
 
 import (
 	"fmt"
+	"github.com/ChokuDoriChief/hunter_force/core"
 	"hunter_force/game"
-	"hunter_force/items"
 )
 
 type Player struct {
@@ -32,6 +32,33 @@ type Shelter struct {
 type Campfire struct {
 	IsLit bool
 	Fuel  int
+}
+
+func (p *Player) PerformAction(action core.Action) bool {
+	if action.EnergyCost() > 0 {
+		if p.Energy < action.EnergyCost() {
+			fmt.Println("Недостаточно энергии!")
+			return false
+		}
+
+		p.Energy -= action.EnergyCost()
+	}
+
+	result, err := action.Execute(p)
+	if err != nil {
+		fmt.Printf("Ошибка: %v\n", err)
+		return false
+	}
+
+	if action.EnergyCost() < 0 {
+		energyGain := -action.EnergyCost()
+		oldEnergy := p.Energy
+		p.Energy = Clamp(p.Energy+energyGain, 0, 100)
+		fmt.Printf("Восстановлено энергии: %d -> %d\n", oldEnergy, p.Energy)
+	}
+
+	fmt.Println(result)
+	return true
 }
 
 func (p *Player) UpdateByTime(timeOfDay game.TimeOfDay) {
@@ -104,66 +131,4 @@ func (p *Player) Status() string {
 		p.Name, p.Day,
 		p.Health, p.Hunger, p.Thirst, p.Energy, p.Morale,
 		inventoryInfo, p.GetInventoryWeight(), p.MaxWeight)
-}
-
-func (p *Player) UseItem(itemName string) bool {
-	if !p.HasItem(itemName) {
-		return false
-	}
-
-	availableItems := GetAvailableItems()
-	item, exists := availableItems[itemName]
-	if !exists {
-		fmt.Printf("Предмет %s не существует в игре\n", itemName)
-		return false
-	}
-
-	success := false
-	switch item.Type {
-	case items.FoodType:
-		oldHunger := p.Hunger
-		p.Hunger = clamp(p.Hunger+item.Value, 0, 100)
-		fmt.Printf("Съел %s. Голод: %d -> %d\n",
-			itemName, oldHunger, p.Hunger)
-		success = true
-
-	case items.ToolType:
-		fmt.Printf("Использовал %s: %s\n", itemName, item.Description)
-		// TODO: написать реализацию кейса
-		success = true
-
-	case items.MedicineType:
-		if p.Health >= 100 {
-			fmt.Println("Лечение не требуется!")
-			return false
-		}
-		oldHealth := p.Health
-		p.Health = Clamp(p.Health+item.Value, 0, 100)
-		fmt.Printf("Использовал %s. Здоровье %d -> %d\n",
-			itemName, oldHealth, p.Health)
-		success = true
-
-	case items.ResourceType:
-		fmt.Printf("%s нельзя использовать напрямую\n", itemName)
-		return false
-
-	default:
-		fmt.Printf("Неизвестный тип предмета %s\n", item.Type)
-	}
-
-	if success {
-		p.RemoveItem(itemName, 1)
-	}
-
-	return success
-}
-
-func Clamp(value, min, max int) int { // вспомогательная функция-ограничитель значения
-	if value < min {
-		return min
-	}
-	if value > max {
-		return max
-	}
-	return value
 }

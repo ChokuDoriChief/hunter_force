@@ -5,15 +5,6 @@ import (
 	"math/rand"
 )
 
-type TimeOfDay string
-
-const (
-	Morning TimeOfDay = "Утро"
-	Day     TimeOfDay = "День"
-	Evening TimeOfDay = "Вечер"
-	Night   TimeOfDay = "Ночь"
-)
-
 const (
 	TurnsPerDayDefault = 4
 	TurnsAtMorning     = 0

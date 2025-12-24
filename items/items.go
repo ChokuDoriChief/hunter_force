@@ -1,14 +1,5 @@
 package items
 
-type ItemType string
-
-const (
-	FoodType     ItemType = "еда"
-	ToolType     ItemType = "инструмент"
-	ResourceType ItemType = "ресурс"
-	MedicineType ItemType = "лекарство"
-)
-
 type Item struct {
 	Name        string
 	Type        ItemType
